@@ -30,7 +30,7 @@ const createShortUrl = async (req, res) => {
     if (!validator.isValid(longUrl)) {
       return res
         .status(400)
-        .json({ status: false, msg: "please provide a valid longUrl." });
+        .json({ status: false, msg: "please provide a longUrl." });
     }
 
     if (validUrl.isWebUri(longUrl)) {
@@ -40,7 +40,7 @@ const createShortUrl = async (req, res) => {
         let cachedData = await GET_ASYNC(longUrl);
         const parsingData = JSON.parse(cachedData);
         return res
-          .status(200)
+          .status(307)
           .json({ status: true, msg: "Url Details.", data: parsingData });
       }
       else {
@@ -100,6 +100,7 @@ const getUrl = async (req, res) => {
       });
 
       if (urlDetails) {
+        await SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(longUrl));
         return res.status(307).redirect(urlDetails.longUrl);
       } else {
         return res.status(404).send({ status: false, msg: "No URL Found" });
